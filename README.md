@@ -114,52 +114,7 @@ At this point I found the NodeJS module which allowed me to do the same thing bu
 
 After finding the NodeJS module that allowed me to accomplish what I just did in Python I was excited because I know Javscript much better than I do Python.
 
-Just like Python, a library (module in javascript terms) is needed to control the LED strip. I will be using the [RPI-ws281x-native](https://www.npmjs.com/package/rpi-ws281x-native) module. Looking the documentation the module exports five functions.
-
-```js
-exports = {
-  /**
-   * configures PWM and DMA for sending data to the LEDs.
-   *
-   * @param {Number} numLeds  number of LEDs to be controlled
-   * @param {?Object} options  (acutally only tested with default-values)
-   *                           intialization-options for the library
-   *                           (PWM frequency, DMA channel, GPIO, Brightness)
-   */
-  init: function (numLeds, options) {},
-
-  /**
-   * register a mapping to manipulate array-indices within the
-   * data-array before rendering.
-   *
-   * @param {Array.<Number>} map  the mapping, indexed by destination.
-   */
-  setIndexMapping: function (map) {},
-
-  /**
-   * set the overall-brightness for the entire strip.
-   * This is a fixed scaling applied by the driver when
-   * data is sent to the strip
-   *
-   * @param {Number} brightness the brightness, value from 0 to 255.
-   */
-  setBrightness: function (brightness) {},
-
-  /**
-   * send data to the LED-strip.
-   *
-   * @param {Uint32Array} data  the pixel-data, 24bit per pixel in
-   *                            RGB-format (0xff0000 is red).
-   */
-  render: function (data) {},
-
-  /**
-   * clears all LEDs, resets the PWM and DMA-parts and deallocates
-   * all internal structures.
-   */
-  reset: function () {},
-};
-```
+Just like Python, a module (library in javascript terms) is needed to control the LED strip. I will be using the [RPI-ws281x-native](https://www.npmjs.com/package/rpi-ws281x-native) module. Looking the documentation the module exports five functions.
 
 ## Basic usage
 
@@ -220,7 +175,7 @@ import grb = require('./utils/grb.js')
 pixelData[i] = grb('ff0000')
 ```
 
-### INSERT PICTURE
+![fixed hex](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/8-min.jpg?token=AFBZQGPEBH5PHVDFDBOBWN27VG2F2)
 
 The brightness can be controlled by calling the `setBrightness` function providing it with a number between 1 and 255.
 
@@ -254,6 +209,8 @@ app.listen(port, () => {
 
 Browsing to the website using the Raspberry PI's ip with port 3000 will greet me with the text from the code.
 
+![website image](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/example_website.png?token=AFBZQGPLS2RYWYYHWIJ6OO27VG2MY)
+
 ### Setting up the LED Strip
 
 To make everything cleaner, I will be placing the setup of the LED module in a seperate file named `ledStrip.js`.
@@ -262,44 +219,92 @@ To make everything cleaner, I will be placing the setup of the LED module in a s
 var NUM_LEDS = 14;
 var ws281x = require("rpi-ws281x-native");
 var pixelData = new Uint32Array(NUM_LEDS);
-var Lights = [];
 
 ws281x.init(NUM_LEDS);
 
-const ledStrip = () => {
-	this.NUM_LEDS = NUM_LEDS;
-	this.mode = "";
-	this.lights = [];
-	this.clear = () => {
-		ws281x.reset();
-	};
+function ledStrip() {
+  this.NUM_LEDS = NUM_LEDS;
+  this.mode = "";
+  this.pixelData = [];
+  this.clear = () => {
+    ws281x.reset();
+  };
 
-	this.stop = = () => {
-		strip.Clear();
-		currentMode = MODES.CLEAR;
-	};
+  this.stop = () => {
+    strip.Clear();
+    currentMode = MODES.CLEAR;
+  };
 
-	this.setBrightness = (brightness) => {
-		ws281x.setBrightness(brightness);
-	};
+  this.setBrightness = (brightness) => {
+    ws281x.setBrightness(brightness);
+  };
 
-	this.setLedStripColor = (color) => {
-		for (var i = 0; i < NUM_LEDS; i++) {
-			this.Lights[i] = color;
-		}
-		this.render();
-	};
+  this.setLedStripColor = (color) => {
+    for (var i = 0; i < NUM_LEDS; i++) {
+      this.pixelData[i] = color;
+    }
+    this.render();
+  };
 
-	this.render = () => {
-		var tmp = [];
-		for (var i = 0; i < NUM_LEDS; i++) {
-			if (i > NUM_LEDS) break;
-			tmp[i] = this.Lights[i];
-		}
+  this.render = () => {
+    var tmp = [];
+    for (var i = 0; i < NUM_LEDS; i++) {
+      if (i > NUM_LEDS) break;
+      tmp[i] = this.pixelData[i];
+    }
 
-		ws281x.render(tmp);
-	};
+    ws281x.render(tmp);
+  };
 }
 
 module.exports = new ledStrip();
 ```
+
+To use the ledStrip module, it needs to be imported in the `server.js` file.
+
+```js
+const ledStrip = require("./ledStrip");
+```
+
+Now that it's imported, it can be tested by doing something simple such as setting the LED strip color to white when the server is started. Within `app.listen` I call a method of `setLedStripColor` which was made in the `ledStrip.js` file.
+
+```js
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+  ledStrip.setLedStripColor(grb("ffffff"));
+});
+```
+
+### Remote Usage
+
+To allow the LED strip to be changed remotely I'm going to use HTTP Post requests. I created a route that accepts a POST request with a JSON body of color and brightness. When a Post request is sent it will try to change the color and brightness if those variables are included in the body of the request.
+
+```js
+app.post("/set", (req, res) => {
+  const { color, brightness } = req.body;
+  try {
+    if (color) {
+      console.log(
+        chalk.blue(`Setting color to`, chalk.hex(`#${color}`).bold(color))
+      );
+      ledStrip.setLedStripColor(grb(color));
+    }
+    if (brightness) {
+      console.log(chalk.blue(`Setting brightness to ${brightness}`));
+      ledStrip.setBrightness(parseInt(brightness));
+    }
+    res.status(200).json({ success: true, color, brightness });
+  } catch (error) {
+    console.log(chalk.red(error));
+    res.status(500).json({ success: false, error });
+  }
+});
+```
+
+To test this, I will be using [Insomnia](https://insomnia.rest/), an opensource API client for REST and GraphQL requests. Within Insomnia I make a new POST request and enter the Pi's IP, webserver port, and route which is `/set`. I also include a JSON body with two variable of color and brightness.
+
+![insomnia](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/insomnia_post.png?token=AFBZQGNN2EDSFLZSKL2YU627VHDAG)
+
+Here is a gif of it in action
+
+![insomnia_gif](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/post_insomnia.gif?token=AFBZQGMKEDRTSNSC74SUI4S7VHDBA)
