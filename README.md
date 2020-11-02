@@ -1,12 +1,118 @@
-Install packages needed
+# Supporting Emerging Technologies
+
+## Fall 2020 - Raspberry PI Project
+
+### Isaac Brummel
+
+## RGB LED Light Strip
+
+### Parts List:
+
+- Raspberry PI
+- WS2812b LED Strip
+  - ![WS2812b LED Strip](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/led_strip.png?token=AFBZQGNDZG52YGC3BYKHFBK7VGTXW)
+- 5v Power Supply
+  - ![5v Power Supply](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/power_supply.png?token=AFBZQGOVWLWS3B6ST6BMIU27VGTT2)
+
+# Setting up the Raspberry PI
+
+For the operating system I chose the lite version of Raspberry Pi OS. The lite version doesn't include a GUI meaning it uses less resources. I used the Raspberry Pi Imager to flash the OS.
+
+![Images](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/setup_image1.png?token=AFBZQGISLVAO5QLVV6ONMIK7VGT5S)
+
+Since the lite version does not include a GUI, I need to setup SSH. To accomplish this without having to use a monitor, place a file named `ssh` into the root directory of the ssd card.
+
+![ssh](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/setup_image2.png?token=AFBZQGJXXAGQSTCUGOMAMFC7VGUEU)
+
+After inserting the SD card and supplying power and ethernet I looked in my router and found the IP given by my DHCP server to the Raspberry PI and logged in with `pi:raspberry`.
+
+Once logged in, I wanted to give the Raspberry Pi a static IP address, to do so edit `/etc/dhcpcd.conf` and add the following.
+
+![static ip](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/setup_image3.png?token=AFBZQGMEI4EM3OHQPZZZVJC7VGUQW)
+
+After a reboot I'm able to ssh into the Raspberry Pi using the static IP.
+
+# Wiring the LED Strip
+
+The final plan for this project is to have the LED strip attatched to the back side of my desk. For learning and development I cut off a portion of the 16 foot LED strip to make it easier.
+
+The LED strip did not come with any wires to hook it up to the GPIO pins on the Raspberry Pi. Luckily I had some breadboard jumper wires which I soldered on the cut LED strip.
+
+The ws2812b LED driver has three wire connections: 5v power, ground, and a data connection.
+
+![Soldered Wires](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/1-min.jpg?token=AFBZQGPT7ZZ5SXTSOT2GOJK7VGXDQ)
+
+Once soldered to the strip, I plugged the other ends into the Pi's GPIO pins following a pinout guide attatching the 5v to the GPIO 5v, ground to the GPIO ground, and the data to GPIO #1 (pin 12).
+
+![pinout](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/pinout.png?token=AFBZQGM3YFL52KRVK63WFNK7VGYMK)
+
+![rpi_connection](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/2-min.jpg?token=AFBZQGONSDFVOMMPW54TS527VGYMI)
+
+Now that the LED strip is connected, I can start coding.
+
+# Controlling the LEDs
+
+The most popular coding language used on the Raspberry Pi is Python, although any language can be used. With that in mind I initially decided to use Python to drive the LED strip due to it's popularity but after some research I found a NodeJS module that allowed me to use Javascript to drive the LED strip. Before finding the module I used Python and below is how I got it running.
+
+## Python
+
+First I installed the necessary libraries, in this case I'm installed Adafruit's Neopixel library.
 
 ```
-sudo apt-get install gcc make build-essential python-dev git scons swig
+sudo pip3 install rpi_ws281x adafruit-circuitpython-neopixel
 ```
 
-# Javascript
+Once installed, I connected to the Raspberry Pi in Visual Studio Code using SSH which allows me to write and run code using my computer but is really stored and executed on the Raspberry Pi.
 
-I'm much more familiar with Javascript so I will be using it rather than Python to control the LED strip.
+After setting everything up in VS Code, I created a python file and added the following code.
+
+```python
+# Import GPIO pins
+import board
+# Import installed Neopixel library
+import neopixel
+# Initialize Neopixel library with data bin, number of leds, and brighness
+pixels = neopixel.NeoPixel(board.D18, 14, brightness=1)
+
+# Set the first pin to red
+pixels[0] = (255, 0, 0)
+```
+
+Running the code lights the first LED red.
+
+![Red LED](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/3-min.jpg?token=AFBZQGO3GSBS6W5XHUNKRC27VGXEO)
+
+Cool, let's light another LED and make it green.
+
+```python
+...
+pixels[0] = (255, 0, 0)
+pixels[1] = (0, 255, 0)
+```
+
+![red and green](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/4-min.jpg?token=AFBZQGJY2LNS55VAJKAE5XK7VGYZY)
+
+To control the entire LED strip I used a library method of `fill` rather than selecting individual pixels like above.
+
+```python
+pixels.fill((0, 255, 0))
+```
+
+![full green](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/5-min.jpg?token=AFBZQGKDEXXHJFVFB4UILNS7VGY3Y)
+
+The brightness can be controlled by editing the number when creating the `pixels` variable at the top. It accepts a float from 0 to 1.
+
+```python
+pixels = neopixel.NeoPixel(board.D18, 14, brightness=0.25)
+```
+
+![0.25](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/6-min.jpg?token=AFBZQGKI3FAFXAGOBSGJOVS7VGZCU)
+
+At this point I found the NodeJS module which allowed me to do the same thing but in Javascript.
+
+## NodeJS
+
+After finding the NodeJS module that allowed me to accomplish what I just did in Python I was excited because I know Javscript much better than I do Python.
 
 Just like Python, a library (module in javascript terms) is needed to control the LED strip. I will be using the [RPI-ws281x-native](https://www.npmjs.com/package/rpi-ws281x-native) module. Looking the documentation the module exports five functions.
 
@@ -57,19 +163,19 @@ exports = {
 
 ## Basic usage
 
-First install the module
+First I installed the module.
 
 ```
 npm install rpi-ws281x-native
 ```
 
-To get started, create a javscript file and import the module.
+Then created a javscript file and import the module.
 
 ```javascript
 const ws281x = require("rpi-ws281x-native");
 ```
 
-Then initialize the module with the number of LEDs based on the [documentation](https://github.com/beyondscreen/node-rpi-ws281x-native#basic-usage).
+Then initialized the module with the number of LEDs based on the [documentation](https://github.com/beyondscreen/node-rpi-ws281x-native#basic-usage).
 
 ```javascript
 // Number of LEDs
@@ -80,7 +186,7 @@ pixelData = new Uint32Array(NUM_LEDS);
 ws281x.init(NUM_LEDS);
 ```
 
-Now that the module is setup, we are ready to use it. In this example I loop through each LED and assign it a color then called the `render` update the LEDs.
+Now that the module is setup, I am ready to use it. In this example I loop through each LED and assign it a color then called the `render` methed exposed by the module to update the LEDs.
 
 This module uses hex codes for color assignment versus the Python library which uses RGB numbers.
 
@@ -90,6 +196,8 @@ for (var i = 0; i < NUM_LEDS; i++) {
 }
 ws281x.render(pixelData);
 ```
+
+![nodejs_green](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/7-min.jpg?token=AFBZQGL4TNPUUPOG6C4XJI27VGZUO)
 
 But wait, the above hex code is red but the LED strip is showing green. Why is that? The LED strip that I have is GRB (green-red-blue) and the module _only_ supports RGB (red-green-blue). This means that I have to convert the hexcode which is `rrggbb` to `ggrrbb`. This can be easily accomplished by creating a function which takes a normal hex code and replaces the first two characters wit the middle two.
 
@@ -104,7 +212,7 @@ function grb(hex) {
 module.exports = grb;
 ```
 
-Then when using it in my code I import it and call the function like so
+Then when using it in my code I import it and call the function like so.
 
 ```js
 import grb = require('./utils/grb.js')
