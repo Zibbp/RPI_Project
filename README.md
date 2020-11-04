@@ -1,8 +1,9 @@
-# Supporting Emerging Technologies
+# Supporting Emerging Technologies - Fall 2020
 
-## Fall 2020 - Raspberry PI Project
-
-### Isaac Brummel
+```js
+// Project: Raspberry Pi Project - RGB LED Strip
+// Author: Isaac Brummel
+```
 
 ## RGB LED Light Strip
 
@@ -13,6 +14,8 @@
   - ![WS2812b LED Strip](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/led_strip.png?token=AFBZQGNDZG52YGC3BYKHFBK7VGTXW)
 - 5v Power Supply
   - ![5v Power Supply](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/power_supply.png?token=AFBZQGOVWLWS3B6ST6BMIU27VGTT2)
+- 3x Breadboard jumper wires
+- 12 AWG Wire
 
 # Setting up the Raspberry PI
 
@@ -44,7 +47,9 @@ The ws2812b LED driver has three wire connections: 5v power, ground, and a data 
 
 Once soldered to the strip, I plugged the other ends into the Pi's GPIO pins following a pinout guide attatching the 5v to the GPIO 5v, ground to the GPIO ground, and the data to GPIO #1 (pin 12).
 
-![pinout](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/pinout.png?token=AFBZQGM3YFL52KRVK63WFNK7VGYMK)
+![pinout](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/pinout.png?token=AFBZQGOHDM6NF4GZHR5MY3S7VQTDC)
+
+![drawup](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/internal_power.jpg?token=AFBZQGIPQLIKSAEIOK6DOQ27VQTEQ)
 
 ![rpi_connection](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/2-min.jpg?token=AFBZQGONSDFVOMMPW54TS527VGYMI)
 
@@ -301,10 +306,134 @@ app.post("/set", (req, res) => {
 });
 ```
 
-To test this, I will be using [Insomnia](https://insomnia.rest/), an opensource API client for REST and GraphQL requests. Within Insomnia I make a new POST request and enter the Pi's IP, webserver port, and route which is `/set`. I also include a JSON body with two variable of color and brightness.
+To test this, I will be using [Insomnia](https://insomnia.rest/), an opensource API client for REST and GraphQL requests. Within Insomnia I make a new POST request and enter the Pi's IP, webserver port, and route which is `/set`. I also include a JSON body with two variables, color and brightness.
 
 ![insomnia](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/insomnia_post.png?token=AFBZQGNN2EDSFLZSKL2YU627VHDAG)
 
-Here is a gif of it in action
+Here is a video of it in action
+[https://www.youtube.com/watch?v=rEyYfssE4uw](https://www.youtube.com/watch?v=rEyYfssE4uw)
 
-![insomnia_gif](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/post_insomnia.gif?token=AFBZQGMKEDRTSNSC74SUI4S7VHDBA)
+### Creating the Web UI
+
+Sending POST requests is better than changing the code but it's not as good as having a web ui to control the LED strip.
+
+#### Starting Simple
+
+I like starting simple, making sure everything works before going further so I made a simple HTML page with some javscript that has a form for a hexcode and brightness.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web LED</title>
+  </head>
+
+  <body>
+    <h1>Web LED</h1>
+    <form id="set">
+      <label for="color">Color</label>
+      <input type="text" id="color" name="color" maxlength="6" />
+      <label for="brightness">Brightness</label>
+      <input type="text" id="brightness" name="brightness" maxlength="3" />
+      <input type="submit" value="Set" />
+    </form>
+    <script src="/js/app.js"></script>
+  </body>
+</html>
+```
+
+```js
+document.addEventListener("submit", function (event) {
+  // Prevent form from submitting to the server
+  event.preventDefault();
+
+  // Create data object from submitted form entries
+  const data = Object.fromEntries(new FormData(event.target));
+
+  // Create JSON body for the POST request
+  const postBody = { color: data.color, brightness: data.brightness };
+
+  // Execute POST request
+  fetch("/set", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(postBody),
+  }).then((response) => console.log(response));
+});
+```
+
+Now when navigating to the webserver the page is updated with the form.
+![form image](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/9.png?token=AFBZQGLGEYDRAU4NLL3QHVS7VQQ6Q)
+
+It also works! Here is a video showing it in action [https://www.youtube.com/watch?v=SmhN_e1XRfk](https://www.youtube.com/watch?v=SmhN_e1XRfk)
+
+#### Making the website user friendly
+
+To make controlled the LED strip easier I made 10 buttons, each being a different color. Pressing each buttong would change the LED strip to it's corresponding color. An example of a button looks like
+
+```html
+<div class="column"><button class="ui red button" id="red">Red</button></div>
+```
+
+To make the LED strip change color to red, I wrote some javascript to accomplish it.
+
+```js
+// If red button is clicked execute function "post" with hexcode of red
+$("#red").click(function (e) {
+  post("FF0000");
+});
+```
+
+The post function is at the end of the file and takes two arguments, `color`, and `brightness`. When the function is called it sends the POST request to the `/set` endpoint.
+
+```js
+function post(color, brightness) {
+  const postBody = { color, brightness };
+
+  fetch("/set", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(postBody),
+  });
+}
+```
+
+I also wanted a brightness slider so I wouldn't have to type in a number to change it. For this I used the html input range type to create a slider and styled it with CSS.
+
+```html
+<input
+  type="range"
+  min="0"
+  max="255"
+  value="127"
+  step="5"
+  class="slider"
+  id="brightnessSlider"
+/>
+```
+
+The javscript to control the brightness is simple. It takes the value of the slider when moved and called the `post` function from above.
+
+```js
+$(document).on("input", "#brightnessSlider", function () {
+  post(null, $(this).val());
+});
+```
+
+After some styling, I have a somewhat nice looking website to control the LED strip.
+
+It works on both desktop and mobile.
+
+![desktop site](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/desktop_site.png?token=AFBZQGITPYCJJU2LSNSGBEC7VQRBA)
+
+![mobile site](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/mobile_site.png?token=AFBZQGKRZZICQQ4PFZLVNTK7VQRBC)
+
+Here is a video of it in action [https://www.youtube.com/watch?v=StSN_iU6zMM](https://www.youtube.com/watch?v=StSN_iU6zMM)
+
+# Final Assembly
