@@ -11,9 +11,9 @@
 
 - Raspberry PI
 - WS2812b LED Strip
-  - ![WS2812b LED Strip](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/led_strip.png?token=AFBZQGNDZG52YGC3BYKHFBK7VGTXW)
+  - ![WS2812b LED Strip](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/led_strip.png)
 - 5v Power Supply
-  - ![5v Power Supply](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/power_supply.png?token=AFBZQGOVWLWS3B6ST6BMIU27VGTT2)
+  - ![5v Power Supply](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/power_supply.png)
 - 3x Breadboard jumper wires
 - 12 AWG Wire
 
@@ -21,17 +21,17 @@
 
 For the operating system I chose the lite version of Raspberry Pi OS. The lite version doesn't include a GUI meaning it uses less resources. I used the Raspberry Pi Imager to flash the OS.
 
-![Images](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/setup_image1.png?token=AFBZQGISLVAO5QLVV6ONMIK7VGT5S)
+![Images](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/setup_image1.png)
 
 Since the lite version does not include a GUI, I need to setup SSH. To accomplish this without having to use a monitor, place a file named `ssh` into the root directory of the ssd card.
 
-![ssh](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/setup_image2.png?token=AFBZQGJXXAGQSTCUGOMAMFC7VGUEU)
+![ssh](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/setup_image2.png)
 
 After inserting the SD card and supplying power and ethernet I looked in my router and found the IP given by my DHCP server to the Raspberry PI and logged in with `pi:raspberry`.
 
 Once logged in, I wanted to give the Raspberry Pi a static IP address, to do so edit `/etc/dhcpcd.conf` and add the following.
 
-![static ip](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/setup_image3.png?token=AFBZQGMEI4EM3OHQPZZZVJC7VGUQW)
+![static ip](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/setup_image3.png)
 
 After a reboot I'm able to ssh into the Raspberry Pi using the static IP.
 
@@ -43,15 +43,15 @@ The LED strip did not come with any wires to hook it up to the GPIO pins on the 
 
 The ws2812b LED driver has three wire connections: 5v power, ground, and a data connection.
 
-![Soldered Wires](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/1-min.jpg?token=AFBZQGPT7ZZ5SXTSOT2GOJK7VGXDQ)
+![Soldered Wires](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/1-min.jpg)
 
 Once soldered to the strip, I plugged the other ends into the Pi's GPIO pins following a pinout guide attatching the 5v to the GPIO 5v, ground to the GPIO ground, and the data to GPIO #1 (pin 12).
 
-![pinout](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/pinout.png?token=AFBZQGOHDM6NF4GZHR5MY3S7VQTDC)
+![pinout](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/pinout.png)
 
-![drawup](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/internal_power.jpg?token=AFBZQGIPQLIKSAEIOK6DOQ27VQTEQ)
+![drawup](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/internal_power.jpg)
 
-![rpi_connection](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/2-min.jpg?token=AFBZQGONSDFVOMMPW54TS527VGYMI)
+![rpi_connection](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/2-min.jpg)
 
 Now that the LED strip is connected, I can start coding.
 
@@ -85,7 +85,7 @@ pixels[0] = (255, 0, 0)
 
 Running the code lights the first LED red.
 
-![Red LED](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/3-min.jpg?token=AFBZQGO3GSBS6W5XHUNKRC27VGXEO)
+![Red LED](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/3-min.jpg)
 
 Cool, let's light another LED and make it green.
 
@@ -95,7 +95,7 @@ pixels[0] = (255, 0, 0)
 pixels[1] = (0, 255, 0)
 ```
 
-![red and green](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/4-min.jpg?token=AFBZQGJY2LNS55VAJKAE5XK7VGYZY)
+![red and green](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/4-min.jpg)
 
 To control the entire LED strip I used a library method of `fill` rather than selecting individual pixels like above.
 
@@ -103,7 +103,7 @@ To control the entire LED strip I used a library method of `fill` rather than se
 pixels.fill((0, 255, 0))
 ```
 
-![full green](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/5-min.jpg?token=AFBZQGKDEXXHJFVFB4UILNS7VGY3Y)
+![full green](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/5-min.jpg)
 
 The brightness can be controlled by editing the number when creating the `pixels` variable at the top. It accepts a float from 0 to 1.
 
@@ -111,7 +111,7 @@ The brightness can be controlled by editing the number when creating the `pixels
 pixels = neopixel.NeoPixel(board.D18, 14, brightness=0.25)
 ```
 
-![0.25](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/6-min.jpg?token=AFBZQGKI3FAFXAGOBSGJOVS7VGZCU)
+![0.25](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/6-min.jpg)
 
 At this point I found the NodeJS module which allowed me to do the same thing but in Javascript.
 
@@ -157,7 +157,7 @@ for (var i = 0; i < NUM_LEDS; i++) {
 ws281x.render(pixelData);
 ```
 
-![nodejs_green](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/7-min.jpg?token=AFBZQGL4TNPUUPOG6C4XJI27VGZUO)
+![nodejs_green](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/7-min.jpg)
 
 But wait, the above hex code is red but the LED strip is showing green. Why is that? The LED strip that I have is GRB (green-red-blue) and the module _only_ supports RGB (red-green-blue). This means that I have to convert the hexcode which is `rrggbb` to `ggrrbb`. This can be easily accomplished by creating a function which takes a normal hex code and replaces the first two characters wit the middle two.
 
@@ -180,7 +180,7 @@ import grb = require('./utils/grb.js')
 pixelData[i] = grb('ff0000')
 ```
 
-![fixed hex](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/8-min.jpg?token=AFBZQGPEBH5PHVDFDBOBWN27VG2F2)
+![fixed hex](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/8-min.jpg)
 
 The brightness can be controlled by calling the `setBrightness` function providing it with a number between 1 and 255.
 
@@ -214,7 +214,7 @@ app.listen(port, () => {
 
 Browsing to the website using the Raspberry PI's ip with port 3000 will greet me with the text from the code.
 
-![website image](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/example_website.png?token=AFBZQGPLS2RYWYYHWIJ6OO27VG2MY)
+![website image](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/example_website.png)
 
 ### Setting up the LED Strip
 
@@ -308,7 +308,7 @@ app.post("/set", (req, res) => {
 
 To test this, I will be using [Insomnia](https://insomnia.rest/), an opensource API client for REST and GraphQL requests. Within Insomnia I make a new POST request and enter the Pi's IP, webserver port, and route which is `/set`. I also include a JSON body with two variables, color and brightness.
 
-![insomnia](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/insomnia_post.png?token=AFBZQGNN2EDSFLZSKL2YU627VHDAG)
+![insomnia](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/insomnia_post.png)
 
 Here is a video of it in action
 [https://www.youtube.com/watch?v=rEyYfssE4uw](https://www.youtube.com/watch?v=rEyYfssE4uw)
@@ -430,9 +430,9 @@ After some styling, I have a somewhat nice looking website to control the LED st
 
 It works on both desktop and mobile.
 
-![desktop site](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/desktop_site.png?token=AFBZQGITPYCJJU2LSNSGBEC7VQRBA)
+![desktop site](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/desktop_site.png)
 
-![mobile site](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/mobile_site.png?token=AFBZQGKRZZICQQ4PFZLVNTK7VQRBC)
+![mobile site](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/mobile_site.png)
 
 Here is a video of it in action [https://www.youtube.com/watch?v=StSN_iU6zMM](https://www.youtube.com/watch?v=StSN_iU6zMM)
 
