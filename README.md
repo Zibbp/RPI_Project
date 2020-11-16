@@ -437,3 +437,36 @@ It works on both desktop and mobile.
 Here is a video of it in action [https://www.youtube.com/watch?v=StSN_iU6zMM](https://www.youtube.com/watch?v=StSN_iU6zMM)
 
 # Final Assembly
+
+The Raspberry Pi does not output enough power to power the entire LED strip so an external power supply is needed. The specific LEDs I'm using (ws2812b) require 0.06 amps per individual LED at full load. Full load meaning white so all three diodes (red, green, and blue) are powered to create the white color at 100% brightness. The number of LEDs I'm using is 161 so `0.06 x 161` equals `9.66` amps. While this may seem like a lot of power it is only when the LED strip is at 100% brightness and white, which will rarely happen. A more realistic power consumption number would be around `5` amps as most of the time all three diodes will not be activated unless the strip is displaying white.
+
+The power supply I purchased, linked in the parts list, is capable of 20 amps which is more than enough for this project.
+
+## Wiring the Power Supply
+
+![power supply](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/powersupply_wiring_1.png)
+
+The power supply doesn't come with a cable to plug it in so I had to make my own. I grabbed a normal PC power plug and snipped off the end. I then stripped the three wires (positive, negative, ground) and screwed them into the AC input of the power supply.
+
+## Wiring the LED Strip and Raspberry Pi
+
+![external power wiring diagram](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/external_power.jpg)
+
+Instead of the LED Strip drawing power from the Raspberry Pi, the positive wire will now be plugged into the power supply. The middle data wire will go the Raspberry Pi just like before. The negative wire will go to both the power supply and Raspberry Pi. This is because the Pi needs a common ground to control the LED strip.
+
+You may be wondering why there is four wires coming from the DC side of the power supply. This is because ws2812b LED strips use 5 volt power causing voltage drop off to occur. Voltage drop off results in the end of the LED strip furthest from the power source to become discolored as it is receiving less than 5 volts of power.
+
+![voltage drop off](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/voltage-dropoff.jpg)
+
+To counter this, I wired up the positive and negative terminals of the other end of the LED strip. Now both ends are being supplied with 5v of power eliminating the voltage drop.
+
+![DC power connections](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/powersupply_wiring_2.png)
+
+# Finished Product
+
+<!-- TODO: add pics & videos -->
+
+# What next?
+
+- Adding animation
+  - ws2812b LEDs are individually adressable meaning each LED can be a different color. This allows for some cool animation effects.
