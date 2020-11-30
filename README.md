@@ -464,9 +464,13 @@ To counter this, I wired up the positive and negative terminals of the other end
 
 # Finished Product
 
-<!-- TODO: add pics & videos -->
+I installed the LED strip behind my desk.
 
-# What next?
+![Finished Image 1](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/final_1.jpg)
+
+![Finished Image 2](https://raw.githubusercontent.com/Zibbp/RPI_Project/master/documentation/images/final_2.jpg)
+
+# Future Improvements
 
 - Adding animation
   - ws2812b LEDs are individually adressable meaning each LED can be a different color. This allows for some cool animation effects.
