@@ -17,7 +17,7 @@ npm install
 
 3. Run
 
-```js
+```jspip
 npm run start
 ```
 
