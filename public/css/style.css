@@ -1,0 +1,49 @@
+.logo {
+    margin-right: 1em !important;
+}
+
+body {
+    background-color: #242423 !important;
+}
+
+.title {
+    color: #e8eddf;
+    font-size: 3em;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+    text-align: center;
+
+}
+
+.slidecontainer {
+    width: 100%;
+  }
+  
+  .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #333533;
+    outline: none;
+    opacity: 1;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    margin-bottom: 1em;
+  }
+  
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #f5cb5c;
+    cursor: pointer;
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #f5cb5c;
+    cursor: pointer;
+  }

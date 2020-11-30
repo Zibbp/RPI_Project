@@ -5,6 +5,24 @@
 // Author: Isaac Brummel
 ```
 
+## Running the Code
+
+1. Clone the repository
+
+2. Install dependencies
+
+```js
+npm install
+```
+
+3. Run
+
+```js
+npm run start
+```
+
+# Documentation
+
 ## RGB LED Light Strip
 
 ### Parts List:
@@ -474,3 +492,5 @@ I installed the LED strip behind my desk.
 
 - Adding animation
   - ws2812b LEDs are individually adressable meaning each LED can be a different color. This allows for some cool animation effects.
+- Radial Color Selection
+  - Ability to choose from hundreds of colors in a radium menu versus limited buttons.
